@@ -1,4 +1,5 @@
 import csv
+import re
 from collections import defaultdict
 from pathlib import Path
 
@@ -10,6 +11,28 @@ def parse_number(value):
         return None
 
     return float(value.replace(",", "."))
+
+
+def split_cell_dmc(cell_dmc, missing_dmc):
+    if cell_dmc == missing_dmc:
+        return None, None, None, None
+
+    match = re.fullmatch(r"(.+)(\d)\.(\d)", cell_dmc)
+
+    if match is None:
+        return None, None, None, None
+
+    leadframe_dmc = match.group(1)
+    dmc_row = int(match.group(2))
+    dmc_column = int(match.group(3))
+    dmc_position = f"{dmc_row}.{dmc_column}"
+
+    return (
+        leadframe_dmc,
+        dmc_position,
+        dmc_row,
+        dmc_column,
+    )
 
 
 def calculate_position(position, tray_config):
@@ -62,7 +85,6 @@ def extract_measurement_runs(file_path, recipe_config):
     header = rows[0]
 
     metadata_columns = header[:metadata_end]
-    feature_columns = header[feature_start:]
 
     target_row = rows[1]
     upper_row = rows[2]
@@ -123,10 +145,20 @@ def extract_measurement_runs(file_path, recipe_config):
             tray_config
         )
 
-        dmc = metadata.get("AMB_DMC", "").strip()
+        cell_dmc = metadata.get("AMB_DMC", "").strip()
 
-        if not dmc:
-            dmc = schema["missing_dmc"]
+        if not cell_dmc:
+            cell_dmc = schema["missing_dmc"]
+
+        (
+            leadframe_dmc,
+            dmc_position,
+            dmc_row,
+            dmc_column,
+        ) = split_cell_dmc(
+            cell_dmc,
+            schema["missing_dmc"]
+        )
 
         measurements = []
 
@@ -151,10 +183,18 @@ def extract_measurement_runs(file_path, recipe_config):
 
         part = {
             "metadata": metadata,
-            "cell_dmc": dmc,
+
+            "leadframe_dmc": leadframe_dmc,
+            "cell_dmc": cell_dmc,
+
+            "dmc_position": dmc_position,
+            "dmc_row": dmc_row,
+            "dmc_column": dmc_column,
+
             "physical_position": position,
             "physical_row": physical_row,
             "physical_column": physical_column,
+
             "measurements": measurements,
         }
 

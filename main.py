@@ -5,6 +5,7 @@ from file_discovery import (
     find_daily_measurement_csv
 )
 from extract import extract_measurement_runs
+from powerbi_csv import create_powerbi_csvs
 
 
 def main():
@@ -14,6 +15,10 @@ def main():
     computer_name = config["general"]["computer_name"]
 
     recipe_files = find_recipe_files(source_root)
+
+    if not recipe_files:
+        print(f"No .slfx recipe files found in: {source_root}")
+        return
 
     for recipe_path in recipe_files:
         recipe_name = recipe_path.stem
@@ -51,33 +56,33 @@ def main():
             )
             continue
 
-        print(f"Recipe: {recipe_name}")
-        print(f"Result folder: {result_folder}")
+        print(f"\nProcessing recipe: {recipe_name}")
         print(f"Measurement file: {measurement_file}")
 
-    runs = extract_measurement_runs(
-        measurement_file,
-        recipe_config
-    )
+        runs = extract_measurement_runs(
+            measurement_file,
+            recipe_config
+        )
 
-    print(f"\nMeasurement runs found: {len(runs)}")
+        print(f"Measurement runs found: {len(runs)}")
 
-    for timestamp, parts in runs.items():
-        print(f"{timestamp}: {len(parts)} positions")
-        
-    
-    for timestamp, parts in runs.items():
-        print("\nFIRST RUN:")
-        print(f"Timestamp: {timestamp}")
-        print(f"Positions: {len(parts)}")
+        for timestamp, parts in runs.items():
+            print(
+                f"  {timestamp}: "
+                f"{len(parts)} positions"
+            )
 
-        if parts:
-            print("\nFIRST PART:")
-            print(parts[0])
+        created_files = create_powerbi_csvs(
+            runs,
+            recipe_config,
+            measurement_file
+        )
 
-        break
-    
-    
+        print(f"Power BI files created: {len(created_files)}")
+
+        for created_file in created_files:
+            print(f"  {created_file}")
+
 
 if __name__ == "__main__":
     main()
