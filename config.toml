@@ -4,7 +4,7 @@ computer_name = "NUD6642N"
 
 # Temporary example.
 # Change to the actual IMX staging drive/path on the target machine.
-source_root = "V:\\"
+source_root = "C:/Users/uiv51287/OneDrive - Schaeffler/Desktop/Keyence_IMX"
 
 [default_schema]
 metadata_end = 8
