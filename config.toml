@@ -1,0 +1,39 @@
+[general]
+device = "Keyence IMX"
+computer_name = "NUD6642N"
+
+# Temporary example.
+# Change to the actual IMX staging drive/path on the target machine.
+source_root = "V:\\"
+
+[default_schema]
+metadata_end = 8
+feature_start = 8
+
+target_label = "Sollwert"
+upper_tolerance_label = "Obergrenze"
+lower_tolerance_label = "Untergrenze"
+
+missing_dmc = "MISSING_DMC"
+
+[tray]
+rows = 6
+columns = 19
+measurement_order = "row_wise"
+
+
+[recipes."All_On_AMB_Infotech-Tray"]
+enabled = true
+output_folder = "Powerbi_Details_All_On_AMB_Infotech-Tray"
+
+
+
+# For other products ad with this schema 
+
+#[recipes."Another_Product"]
+# enabled = true
+# output_folder = "Powerbi_Details_Another_Product"#
+
+# [recipes."Another_Product".schema]
+# metadata_end = 10
+# feature_start = 10
